@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "..\\.."
+		}
+	],
+	"settings": {
+		"code-runner.runInTerminal": true,
+		"python.pythonPath": "E:\\Program\\DevelopTool\\Anaconda\\envs\\common\\python.exe",
+		"code-runner.executorMap": {
+			"python": "$pythonPath -u $fullFileName",
+		}
+	}
+}
