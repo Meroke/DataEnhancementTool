@@ -2,12 +2,12 @@
 Author: Meroke
 Date: 2021-11-09 22:25:43
 LastEditors: Meroke
-LastEditTime: 2021-11-13 21:37:09
+LastEditTime: 2021-11-14 09:12:46
 Description: file content
-FilePath: \Python_pra\PYQT\test\main.py
+FilePath: \Python_pra\PYQT\DataEnhancementTool\main.py
 '''
 # from Ui_Window  import QtCore, QtGui, QtWidgets, Ui_MainWindow
-
+from PyQt5 import QtWidgets
 from MyWindow import *
 # from qt_material import apply_stylesheet
 import qdarkstyle

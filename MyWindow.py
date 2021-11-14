@@ -2,14 +2,15 @@
 Author: Meroke
 Date: 2021-11-13 14:16:20
 LastEditors: Meroke
-LastEditTime: 2021-11-13 22:10:06
+LastEditTime: 2021-11-14 09:27:13
 Description: file content
-FilePath: \Python_pra\PYQT\test\MyWindow.py
+FilePath: \Python_pra\PYQT\DataEnhancementTool\MyWindow.py
 '''
 from numpy import SHIFT_INVALID
 from Ui_Window import Ui_MainWindow
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox,QInputDialog,QFileDialog
+# from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMessageBox,QFileDialog
+#,QInputDialog,QApplication, QMainWindow
 from PyQt5.QtCore import Qt
 # from PyQt5.QtGui import QFont
 import os
@@ -42,15 +43,17 @@ class MyMainForm(Ui_MainWindow):
         self.FilePathEdit_2.setText(SavePath)
 
     def init_GaussSlider(self):
-        self.GaussRateSlider.setRange(0,15)
+        self.GaussRateSlider.setRange(0,16)
         self.GaussRateSlider.setSingleStep(1)
-        self.GaussRateSlider.sliderMoved.connect(self.GaussRateSlider_Moved)
-
+        # self.GaussRateSlider.sliderMoved.connect(self.GaussRateSlider_Moved)
+        self.GaussRateSlider.setValue(1)
+        self.GaussRateText.setText(str(0.1))
+        self.GaussRateSlider.valueChanged.connect(self.GaussRateSlider_Moved)
     def GaussRateSlider_Moved(self):
         value = self.GaussRateSlider.value()
         print(value)
         # self.GaussSpinBox.setValue(value*0.001)
-        self.GaussRateText.setText(str(value * 0.001))
+        self.GaussRateText.setText(str(value/10 ))
         # self.GaussRateText.setFont(QFont("Timers", 40))
 
     def WarningMessageBox(self,message):
@@ -100,7 +103,7 @@ class MyMainForm(Ui_MainWindow):
                         if(stren_mode_list[mode] == True and mode == 0):
                             StepAngle = int(self.RotaAngleSpin.text())
                             if(StepAngle ==  0):
-                                self.WarningMessageBox('请设置旋转步长')
+                                self.WarningMessageBox('旋转图片生成失败，请设置旋转步长')
                             else:
                                 PicStrength.Rotate_Process(img,StepAngle,SinglePicPath)
                         # Move

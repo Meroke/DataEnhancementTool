@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'e:\Program\Code\python\Python_pra\PYQT\test\Window.ui'
+# Form implementation generated from reading ui file 'e:\Program\Code\python\Python_pra\PYQT\DataEnhancementTool\Window.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -61,12 +61,18 @@ class Ui_MainWindow(object):
         self.GaussTab = QtWidgets.QWidget()
         self.GaussTab.setObjectName("GaussTab")
         self.GaussRateSlider = QtWidgets.QSlider(self.GaussTab)
-        self.GaussRateSlider.setGeometry(QtCore.QRect(70, 60, 160, 22))
+        self.GaussRateSlider.setGeometry(QtCore.QRect(100, 60, 160, 22))
         self.GaussRateSlider.setOrientation(QtCore.Qt.Horizontal)
         self.GaussRateSlider.setObjectName("GaussRateSlider")
         self.GaussRateText = QtWidgets.QLineEdit(self.GaussTab)
         self.GaussRateText.setGeometry(QtCore.QRect(10, 60, 51, 21))
         self.GaussRateText.setObjectName("GaussRateText")
+        self.label_3 = QtWidgets.QLabel(self.GaussTab)
+        self.label_3.setGeometry(QtCore.QRect(10, 30, 111, 16))
+        self.label_3.setObjectName("label_3")
+        self.label_4 = QtWidgets.QLabel(self.GaussTab)
+        self.label_4.setGeometry(QtCore.QRect(70, 60, 21, 16))
+        self.label_4.setObjectName("label_4")
         self.tabWidget.addTab(self.GaussTab, "")
         self.MirrTab = QtWidgets.QWidget()
         self.MirrTab.setObjectName("MirrTab")
@@ -141,6 +147,8 @@ class Ui_MainWindow(object):
         self.MirrBtn.setText(_translate("MainWindow", "镜像"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.RotaTab), _translate("MainWindow", "旋转"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.MoveTab), _translate("MainWindow", "位移"))
+        self.label_3.setText(_translate("MainWindow", "噪点百分比"))
+        self.label_4.setText(_translate("MainWindow", "%"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.GaussTab), _translate("MainWindow", "高斯噪点"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.MirrTab), _translate("MainWindow", "镜像"))
         self.OpenFileBtn.setText(_translate("MainWindow", "选择文件夹"))
