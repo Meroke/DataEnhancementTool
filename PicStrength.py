@@ -7,7 +7,7 @@ import os
 '''
 图片处理四个阶段： img, dst, Ongoing, result
 '''
-global save_path
+save_path =''
 
 '''
 show(img) 显示图片
@@ -51,9 +51,10 @@ def Rotate(img, angle=0):
 
 '''
 图片镜像：
-    axis = 0, 垂直镜像
+    axis = -1, 原点镜像
+           0, 垂直镜像
            1, 水平镜像
-           2, 原点镜像
+           
 '''
 def Mirror(img, axis=1):
     dst = cv2.flip(img, axis)
@@ -126,26 +127,38 @@ def saveImage(img, file_path, suffix):
     cv2.imwrite(save_name, img)
 
 
-def Tranlate_Process(img, Tran, file_path):
+def Tranlate_Process(img, Tran_List, file_path):
     # if Tran=0, ignore this way
     Ongoing = None
     # print(Tran)
-    if Tran > 0:
-        direction = [1, 2, 3, 4]
-        for Tran in direction:
-            move_dis = random.randrange(20,100,20)
-            # move_dis = 50
-            if Tran < 3:  # 1=positive,2=negative
-                if Tran == 2:
-                    move_dis *= -1
-                Ongoing = Translate(img, move_dis, 0)
-            else:  # Tran = 3 or 4, 3=positive,4=negative
-                if Tran == 4:
-                    move_dis *= -1
-                Ongoing = Translate(img, 0, move_dis)
-            if Ongoing is not None:
-                # print("tran" + str(Tran))
-                saveImage(Ongoing, file_path, 'Tran{}_'.format(Tran) + str(abs(move_dis)))
+
+    for i in range(len(Tran_List)):
+        Tran_List[i] = Tran_List[i] / 100
+        # move_dis = 50
+        if i == 0:
+            move_dis = int(Tran_List[i] * img.shape[0])
+            Ongoing = Translate(img, move_dis, 0)
+        elif i == 1:
+            move_dis = int(Tran_List[i] * img.shape[0])
+            Ongoing = Translate(img, move_dis*-1, 0)
+        elif i == 2:
+            move_dis = int(Tran_List[i] * img.shape[1])
+            Ongoing = Translate(img, 0, move_dis*-1)
+        elif i == 3:
+            move_dis = int(Tran_List[i] * img.shape[1])
+            Ongoing = Translate(img, 0, move_dis)
+        
+        # if i < 2:  # 0=positive,1=negative
+        #     if i == 1:
+        #         move_dis *= -1
+        #     Ongoing = Translate(img, move_dis, 0)
+        # else:  # i = 2 or 3, 2=positive,3=negative
+        #     if i == 3:
+        #         move_dis *= -1
+        #     Ongoing = Translate(img, 0, move_dis)
+        print(move_dis)
+        if Ongoing is not None:
+            saveImage(Ongoing, file_path, 'Tran{}_'.format(i) + str(abs(move_dis)))
 
     return Ongoing
 
@@ -161,16 +174,24 @@ def Rotate_Process(img, Rota, file_path):
             saveImage(Ongoing, file_path, 'Rota' + str(angle))
     return Ongoing
 
-def MiRROR_Process(img, axis, file_path):
-    Ongoing = None
-    for i in range(-1,2):
-        axis = i
-        Ongoing = Mirror(img,axis)
-        saveImage(Ongoing, file_path , 'Mirr' + str(axis))
+def MiRROR_Process(img, Configure_list, file_path):
+    axis_list = [-1,0,1]
+    for i in range(len(Configure_list)):
+        Ongoing = None
+        if Configure_list[i] and i == 0 :
+            Ongoing = Mirror(img,axis_list[i])
+        elif Configure_list[i] and i == 1:
+            Ongoing = Mirror(img,axis_list[i])
+        elif Configure_list[i] and i == 2:
+            Ongoing = Mirror(img,axis_list[i])
+        if(Ongoing is not None):
+            saveImage(Ongoing, file_path , 'Mirr' + str(axis_list[i]))
     return Ongoing
 
 def GasussNoise_Process(img,file_path,rate=0.001):
     Ongoing =None
+    if(rate >= 0.01):
+        rate /= 100
     Ongoing = GasussNoise(img,var=rate)
     saveImage(Ongoing, file_path, 'Gasu' + str(rate))
     return Ongoing
@@ -183,50 +204,50 @@ def Brightness_Process(img,file_path):
         saveImage(Ongoing,file_path,'Brig' + str(int(i*10)))
     return Ongoing
 
-def Process_Mode01(file_path, master):
-    img = cv2.imread(file_path)
-    Tran = master.ModeList[0]
-    Rota = master.ModeList[1]
-    Mirr = master.ModeList[2]
-    Gasu = master.ModeList[3]
-    CoBr = master.ModeList[4]
-    result = img
-    # if Tran is not 0:
-    #     result = Tranlate_Process(img, Tran, file_path)
-    if Rota is not 0:
-        result = Rotate_Process(img, 1, file_path)
-    # if Mirr is not 0:
-    #     result = MiRROR_Process(img,Mirr,file_path)
-    if Gasu is not 0:
-        result = GasussNoise_Process(img,file_path)
-    if CoBr is not 0:
-        result = Brightness_Process(img,file_path)
+# def Process_Mode01(file_path, master):
+#     img = cv2.imread(file_path)
+#     Tran = master.ModeList[0]
+#     Rota = master.ModeList[1]
+#     Mirr = master.ModeList[2]
+#     Gasu = master.ModeList[3]
+#     CoBr = master.ModeList[4]
+#     result = img
+#     # if Tran is not 0:
+#     #     result = Tranlate_Process(img, Tran, file_path)
+#     if Rota is not 0:
+#         result = Rotate_Process(img, 1, file_path)
+#     # if Mirr is not 0:
+#     #     result = MiRROR_Process(img,Mirr,file_path)
+#     if Gasu is not 0:
+#         result = GasussNoise_Process(img,file_path)
+#     if CoBr is not 0:
+#         result = Brightness_Process(img,file_path)
 
 
-def Process_Mult_Pics(path, mode=0):
-    global save_path
-    save_path = os.path.join(path, 'NewFrom')
-    if not os.path.exists(save_path):
+# def Process_Mult_Pics(path, mode=0):
+#     global save_path
+#     save_path = os.path.join(path, 'NewFrom')
+#     if not os.path.exists(save_path):
 
-        os.makedirs(save_path)
-    # mode init
-    Rein_Ways = Random_Reinforcement()
-    Rein_Ways.Random_Rein()
+#         os.makedirs(save_path)
+#     # mode init
+#     Rein_Ways = Random_Reinforcement()
+#     Rein_Ways.Random_Rein()
 
-    FileList = os.listdir(path)
-    if mode is 0:
-        for i in FileList:
-            if os.path.splitext(i)[1] == '.png':
-                # print(os.path.join(path, i))
-                file = os.path.join(path, i)
-                # print(file.split('\\')[-1])
-                Process_Mode01(file, Rein_Ways)
+#     FileList = os.listdir(path)
+#     if mode is 0:
+#         for i in FileList:
+#             if os.path.splitext(i)[1] == '.png':
+#                 # print(os.path.join(path, i))
+#                 file = os.path.join(path, i)
+#                 # print(file.split('\\')[-1])
+#                 Process_Mode01(file, Rein_Ways)
 
 
-if __name__ is "__main__":
-    # img = cv2.imread("C:\\Users\\Meroke\\Pictures\\3.png")
-    # result = Contrast_Brightness(img)
-    # show(result)
-    # path = 'E:\\File\\Picture'
-    path='E:\\Program\\Code\python\\Python_pra\\result'
-    Process_Mult_Pics(path)
+# if __name__ is "__main__":
+#     # img = cv2.imread("C:\\Users\\Meroke\\Pictures\\3.png")
+#     # result = Contrast_Brightness(img)
+#     # show(result)
+#     # path = 'E:\\File\\Picture'
+#     path='E:\\Program\\Code\python\\Python_pra\\result'
+#     Process_Mult_Pics(path)

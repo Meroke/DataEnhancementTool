@@ -2,15 +2,15 @@
 Author: Meroke
 Date: 2021-11-13 14:16:20
 LastEditors: Meroke
-LastEditTime: 2021-11-14 09:27:13
+LastEditTime: 2021-11-14 16:15:29
 Description: file content
 FilePath: \Python_pra\PYQT\DataEnhancementTool\MyWindow.py
 '''
 from numpy import SHIFT_INVALID
 from Ui_Window import Ui_MainWindow
-# from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox,QFileDialog
-#,QInputDialog,QApplication, QMainWindow
+#,QInputDialog,QApplication, QMainWindow 
 from PyQt5.QtCore import Qt
 # from PyQt5.QtGui import QFont
 import os
@@ -21,6 +21,7 @@ import cv2
 class MyMainForm(Ui_MainWindow):
     def __init__(self,MainWindow):
         super().setupUi(MainWindow)
+        MainWindow.setWindowTitle("数据增强工具")
         ##------------------------------------------------------------##User Code Start
         self.CheckBox_Triger()
         self.init_FileBtn()
@@ -29,8 +30,37 @@ class MyMainForm(Ui_MainWindow):
         self.Last_Generate_Button()
         self.CancleBtn.pressed.connect(self.CancleWindow)
         self.init_FilePath()
-        self.init_GaussSlider()
+        self.init_GaussSlider_Confgure()
+        self.init_Move_Configure()
+        self.init_Mirror_Configure()
         ##------------------------------------------------------------## User Code END
+    '''
+    各类模块的初始化，并连接槽函数
+    '''
+    def init_Mirror_Configure(self):
+        self.HorizontalCheckBox.setChecked(True)
+        self.VerticalCheckBox.setChecked(True)
+        self.OriginCheckBox.setChecked(True)
+
+    def Read_Mirror_Configure(self):
+        list = []
+        list.append(self.OriginCheckBox.isChecked())
+        list.append(self.VerticalCheckBox.isChecked())
+        list.append(self.HorizontalCheckBox.isChecked())
+        return list
+        
+    def init_Move_Configure(self):
+        self.Move_Conf_Up.setText(str(20))
+        self.Move_Conf_Down.setText(str(20))
+        self.Move_Conf_Left.setText(str(20))
+        self.Move_Conf_Right.setText(str(20))
+    def Move_Configure_Read(self):
+        list = []
+        list.append(int(self.Move_Conf_Up.text()))
+        list.append(int(self.Move_Conf_Down.text()))
+        list.append(int(self.Move_Conf_Left.text()))
+        list.append(int(self.Move_Conf_Right.text()))
+        return list
 
     def init_FilePath(self):
         OpenPath = 'E:/File/Picture'
@@ -42,25 +72,34 @@ class MyMainForm(Ui_MainWindow):
         self.FilePathEdit.setText(OpenPath)
         self.FilePathEdit_2.setText(SavePath)
 
-    def init_GaussSlider(self):
+    def init_GaussSlider_Confgure(self):
         self.GaussRateSlider.setRange(0,16)
         self.GaussRateSlider.setSingleStep(1)
         # self.GaussRateSlider.sliderMoved.connect(self.GaussRateSlider_Moved)
-        self.GaussRateSlider.setValue(1)
-        self.GaussRateText.setText(str(0.1))
+        self.GaussRateSlider.setValue(6)
+        self.GaussRateText.setText(str(0.6))
         self.GaussRateSlider.valueChanged.connect(self.GaussRateSlider_Moved)
     def GaussRateSlider_Moved(self):
         value = self.GaussRateSlider.value()
-        print(value)
-        # self.GaussSpinBox.setValue(value*0.001)
         self.GaussRateText.setText(str(value/10 ))
         # self.GaussRateText.setFont(QFont("Timers", 40))
 
+        
+
+    '''
+    MessageBox
+    对话框初始化，目前使用两种，警告Warn，提示Info
+    警告Warn 提供返回值确定
+    '''
     def WarningMessageBox(self,message):
         error = QMessageBox()      
         error.setWindowTitle('Warning!')
         error.setText(message)
+        Qyes = error.addButton(('确定'),QMessageBox.YesRole)
+        Qno = error.addButton(('取消'),QMessageBox.NoRole)
         error.exec()
+        return error.clickedButton() == Qyes
+
     def InfoMessageBox(self,message):
         Info = QMessageBox()
         Info.setWindowTitle("Info!")
@@ -87,6 +126,12 @@ class MyMainForm(Ui_MainWindow):
         list.append(self.MirrBtn.isChecked())
         return list
 
+        
+    '''
+    数据增强 主要执行函数 
+    Generate_Pics_Mult_Ways()
+    para: stren_mode_list 返回所有算子的用户选择情况 默认[0,0,0,0]
+    '''
     def Generate_Pics_Mult_Ways(self,stren_mode_list):
         print(stren_mode_list)
         path = self.FilePathEdit.text()
@@ -108,25 +153,34 @@ class MyMainForm(Ui_MainWindow):
                                 PicStrength.Rotate_Process(img,StepAngle,SinglePicPath)
                         # Move
                         elif(stren_mode_list[mode] == True and mode == 1):
-                            PicStrength.Tranlate_Process(img, 1, SinglePicPath)
+                            Move_Configure_List = self.Move_Configure_Read()
+                            PicStrength.Tranlate_Process(img, Move_Configure_List, SinglePicPath)
                         # Gauss    
                         elif(stren_mode_list[mode] == True and mode == 2):
                             rate = float(self.GaussRateText.text())
                             PicStrength.GasussNoise_Process(img,SinglePicPath,rate)
                         # Mirror
                         elif(stren_mode_list[mode] == True and mode == 3):
-                            PicStrength.MiRROR_Process(img,1, SinglePicPath)
+                            Mirror_Configure_List =self.Read_Mirror_Configure()
+                            PicStrength.MiRROR_Process(img,Mirror_Configure_List, SinglePicPath)
         return True
 
+
+    '''
+    数据增强 用户入口 触发函数
+    '''
     def GeneratePics(self):
         flag = self.GenerateBtn.isChecked()
         if(not flag):
             # Finally Generate pics
             OpenFilePath = self.FilePathEdit.text()
             SaveFilePath = self.FilePathEdit_2.text()
-            if(len(os.listdir(SaveFilePath))>0):
-                pass
+
             if(OpenFilePath and SaveFilePath):
+                if(len(os.listdir(SaveFilePath))>0):
+                    User_Selection = self.WarningMessageBox("保存文件夹内已存在文件，可能会导致重名覆盖，请问确认继续吗")
+                    if(not User_Selection):
+                        return
                 PicStrength.save_path = SaveFilePath
                 FinishFlag = self.Generate_Pics_Mult_Ways(self.ReadCheckBox())
                 if(FinishFlag):
