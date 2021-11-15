@@ -2,7 +2,7 @@
 Author: Meroke
 Date: 2021-11-13 14:16:20
 LastEditors: Meroke
-LastEditTime: 2021-11-15 15:12:45
+LastEditTime: 2021-11-15 19:24:33
 Description: file content
 FilePath: \Python_pra\PYQT\DataEnhancementTool\MyWindow.py
 '''
@@ -17,12 +17,13 @@ import os
 import sys
 import PicStrength
 import cv2
-
+import IconSources
 class MyMainForm(Ui_MainWindow):
     def __init__(self,MainWindow):
         super().setupUi(MainWindow)
         MainWindow.setWindowTitle("数据增强工具")
         ##------------------------------------------------------------##User Code Start
+        MainWindow.setWindowIcon(QtGui.QIcon(':/diagram.ico'))
         self.CheckBox_Triger()
         self.init_FileBtn()
         self.init_Rotate_Configure()
