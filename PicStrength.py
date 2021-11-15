@@ -93,32 +93,6 @@ def Contrast_Brightness(img, rate=1.0, g=0):
     return dst
 
 
-class Random_Reinforcement:
-    def __init__(self):
-        self.IsTranslate = -1
-        self.IsRotate = -1
-        self.IsMirror = -1
-        self.IsGasussNoise = -1
-        self.IsContrast_Brightness = -1
-        self.ModeList = []
-        self.ModeListAppend = self.ModeList.append
-
-    def Random_Rein(self):
-        self.IsTranslate = random.randint(1, 1)
-        self.IsRotate = random.randint(1, 3)
-        self.IsMirror = random.randint(1, 2)
-        self.IsGasussNoise = random.randint(1, 1)
-        self.IsContrast_Brightness = random.randint(1, 2)
-        self.flash_list()
-
-    def flash_list(self):
-        self.ModeList.clear()
-        self.ModeListAppend(self.IsTranslate)  # 0
-        self.ModeListAppend(self.IsRotate)  # 1
-        self.ModeListAppend(self.IsMirror)  # 2
-        self.ModeListAppend(self.IsGasussNoise)  # 3
-        self.ModeListAppend(self.IsContrast_Brightness)  # 4
-
 
 def saveImage(img, file_path, suffix):
     file_name = file_path.split('\\')[-1].split('.')[0]
@@ -128,9 +102,7 @@ def saveImage(img, file_path, suffix):
 
 
 def Tranlate_Process(img, Tran_List, file_path):
-    # if Tran=0, ignore this way
     Ongoing = None
-    # print(Tran)
 
     for i in range(len(Tran_List)):
         Tran_List[i] = Tran_List[i] / 100
@@ -163,13 +135,13 @@ def Tranlate_Process(img, Tran_List, file_path):
     return Ongoing
 
 
-def Rotate_Process(img, Rota, file_path):
+def Rotate_Process(img, Rota_list, file_path):
     # split_period = Rota * 30
-    split_period = Rota
+    split_period = Rota_list[2]
     if(split_period < 1):
         Ongoing = img
     else:
-        for angle in range(0, 360, split_period):
+        for angle in range(Rota_list[0], Rota_list[1], split_period):
             Ongoing = Rotate(img, angle)
             saveImage(Ongoing, file_path, 'Rota' + str(angle))
     return Ongoing
@@ -197,13 +169,57 @@ def GasussNoise_Process(img,file_path,rate=0.001):
     return Ongoing
 
 
-def Brightness_Process(img,file_path):
+def Brightness_Process(img,Bright_list,file_path):
     Ongoing = None
-    for i in np.arange(0.8,1.4,0.4):
-        Ongoing = Contrast_Brightness(img,i)
-        saveImage(Ongoing,file_path,'Brig' + str(int(i*10)))
+    Difference_Rate, ret , RandomNum= Bright_list
+    # for i in np.arange(0.8,1.4,0.4):
+    ActualRate = Difference_Rate + 1
+    Ongoing = Contrast_Brightness(img,ActualRate)
+    saveImage(Ongoing,file_path,'Brig' + str(ActualRate))
+    if ret:
+        ActualRate = Difference_Rate*(-1) +1
+        Ongoing = Contrast_Brightness(img,ActualRate)
+        saveImage(Ongoing,file_path,'Brig' + str(ActualRate))
+    if RandomNum !=None and RandomNum > 0:
+        MaxValue = Difference_Rate + 1
+        if ret:
+            MinValue = Difference_Rate* (-1) + 1
+        else:
+            MinValue = 1
+        for i in range(RandomNum):
+            ActualRate = round(random.uniform(MinValue,MaxValue),2)
+            Ongoing = Contrast_Brightness(img,ActualRate)
+            saveImage(Ongoing,file_path,'Brig' + 'extr'+str(ActualRate))
+
     return Ongoing
 
+
+
+# class Random_Reinforcement:
+#     def __init__(self):
+#         self.IsTranslate = -1
+#         self.IsRotate = -1
+#         self.IsMirror = -1
+#         self.IsGasussNoise = -1
+#         self.IsContrast_Brightness = -1
+#         self.ModeList = []
+#         self.ModeListAppend = self.ModeList.append
+
+#     def Random_Rein(self):
+#         self.IsTranslate = random.randint(1, 1)
+#         self.IsRotate = random.randint(1, 3)
+#         self.IsMirror = random.randint(1, 2)
+#         self.IsGasussNoise = random.randint(1, 1)
+#         self.IsContrast_Brightness = random.randint(1, 2)
+#         self.flash_list()
+
+#     def flash_list(self):
+#         self.ModeList.clear()
+#         self.ModeListAppend(self.IsTranslate)  # 0
+#         self.ModeListAppend(self.IsRotate)  # 1
+#         self.ModeListAppend(self.IsMirror)  # 2
+#         self.ModeListAppend(self.IsGasussNoise)  # 3
+#         self.ModeListAppend(self.IsContrast_Brightness)  # 4
 # def Process_Mode01(file_path, master):
 #     img = cv2.imread(file_path)
 #     Tran = master.ModeList[0]

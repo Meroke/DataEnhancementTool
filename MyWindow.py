@@ -2,11 +2,11 @@
 Author: Meroke
 Date: 2021-11-13 14:16:20
 LastEditors: Meroke
-LastEditTime: 2021-11-14 16:15:29
+LastEditTime: 2021-11-15 15:12:45
 Description: file content
 FilePath: \Python_pra\PYQT\DataEnhancementTool\MyWindow.py
 '''
-from numpy import SHIFT_INVALID
+# from PYQT.DataEnhancementTool.PicStrength import Brightness_Process
 from Ui_Window import Ui_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox,QFileDialog
@@ -25,7 +25,7 @@ class MyMainForm(Ui_MainWindow):
         ##------------------------------------------------------------##User Code Start
         self.CheckBox_Triger()
         self.init_FileBtn()
-        self.init_Rota_widget()
+        self.init_Rotate_Configure()
         # Vital Enter Function
         self.Last_Generate_Button()
         self.CancleBtn.pressed.connect(self.CancleWindow)
@@ -33,10 +33,36 @@ class MyMainForm(Ui_MainWindow):
         self.init_GaussSlider_Confgure()
         self.init_Move_Configure()
         self.init_Mirror_Configure()
+        self.init_Bright_Configure()
         ##------------------------------------------------------------## User Code END
     '''
     各类模块的初始化，并连接槽函数
     '''
+    def init_Bright_Configure(self):
+        self.BrightRateSlider.setValue(2)
+        self.BrightRateSlider.setRange(0,5)
+        self.BrightRateSlider.valueChanged.connect(self.BrightRateSlider_Moved)
+        self.BrightRateText.setText('0.2')
+        self.BrightRandomBtn.stateChanged.connect(self.BrightRandomBtn_StateChanged)
+        if(not self.BrightRandomBtn.isChecked()):
+            self.BrightRandomNumLine.setEnabled(False)
+    def BrightRandomBtn_StateChanged(self):
+        if(self.BrightRandomBtn.isChecked()):
+            self.BrightRandomNumLine.setEnabled(True)
+        else:
+            self.BrightRandomNumLine.setEnabled(False)
+
+    def BrightRateSlider_Moved(self):
+        value = str(self.BrightRateSlider.value() / 10)
+        self.BrightRateText.setText(value)
+
+    def Read_Bright_Configure(self):
+        list = []
+        list.append(self.BrightRateSlider.value()/10)
+        list.append(self.BrightTwoWayBtn.isChecked())
+        list.append(int(self.BrightRandomNumLine.text()))
+        return list
+
     def init_Mirror_Configure(self):
         self.HorizontalCheckBox.setChecked(True)
         self.VerticalCheckBox.setChecked(True)
@@ -54,7 +80,7 @@ class MyMainForm(Ui_MainWindow):
         self.Move_Conf_Down.setText(str(20))
         self.Move_Conf_Left.setText(str(20))
         self.Move_Conf_Right.setText(str(20))
-    def Move_Configure_Read(self):
+    def Read_Move_Configure(self):
         list = []
         list.append(int(self.Move_Conf_Up.text()))
         list.append(int(self.Move_Conf_Down.text()))
@@ -110,20 +136,34 @@ class MyMainForm(Ui_MainWindow):
     def CancleWindow(self):
         sys.exit()
 
-    def init_Rota_widget(self):
+    def init_Rotate_Configure(self):
         # limit the angle of Roate, at least generate a new pic
+        self.AngleMin.setText('0')
+        self.AngleMax.setText('360')
         self.RotaAngleSpin.setRange(0,180)
+        self.RotaAngleSpin.setValue(60)
+
+    def Read_Rotate_Configure(self):
+        list = []
+        list.append(int(self.AngleMin.text()))
+        list.append(int(self.AngleMax.text()))
+        list.append(int(self.RotaAngleSpin.text()))
+        return list
 
     def Last_Generate_Button(self):
         self.GenerateBtn.setCheckable(True)
         self.GenerateBtn.pressed.connect(self.GeneratePics)
-    
-    def ReadCheckBox(self):
+
+    '''
+    读取用户所选择的算子
+    '''
+    def Read_UserSelection(self):
         list = []
         list.append(self.RotaBtn.isChecked())
         list.append(self.MoveBtn.isChecked())
         list.append(self.GausBtn.isChecked())
         list.append(self.MirrBtn.isChecked())
+        list.append(self.BrightBtn.isChecked())
         return list
 
         
@@ -146,14 +186,14 @@ class MyMainForm(Ui_MainWindow):
                     for mode in range(len(stren_mode_list)):
                         # Rotate 
                         if(stren_mode_list[mode] == True and mode == 0):
-                            StepAngle = int(self.RotaAngleSpin.text())
-                            if(StepAngle ==  0):
+                            Angle_Configure = self.Read_Rotate_Configure()
+                            if(Angle_Configure[2] ==  0):
                                 self.WarningMessageBox('旋转图片生成失败，请设置旋转步长')
                             else:
-                                PicStrength.Rotate_Process(img,StepAngle,SinglePicPath)
+                                PicStrength.Rotate_Process(img,Angle_Configure,SinglePicPath)
                         # Move
                         elif(stren_mode_list[mode] == True and mode == 1):
-                            Move_Configure_List = self.Move_Configure_Read()
+                            Move_Configure_List = self.Read_Move_Configure()
                             PicStrength.Tranlate_Process(img, Move_Configure_List, SinglePicPath)
                         # Gauss    
                         elif(stren_mode_list[mode] == True and mode == 2):
@@ -163,6 +203,11 @@ class MyMainForm(Ui_MainWindow):
                         elif(stren_mode_list[mode] == True and mode == 3):
                             Mirror_Configure_List =self.Read_Mirror_Configure()
                             PicStrength.MiRROR_Process(img,Mirror_Configure_List, SinglePicPath)
+                        # Bright
+                        elif(stren_mode_list[mode] == True and mode == 4):
+                            Bright_Configure_list = self.Read_Bright_Configure()
+                            PicStrength.Brightness_Process(img,Bright_Configure_list, SinglePicPath)
+                        
         return True
 
 
@@ -182,7 +227,7 @@ class MyMainForm(Ui_MainWindow):
                     if(not User_Selection):
                         return
                 PicStrength.save_path = SaveFilePath
-                FinishFlag = self.Generate_Pics_Mult_Ways(self.ReadCheckBox())
+                FinishFlag = self.Generate_Pics_Mult_Ways(self.Read_UserSelection())
                 if(FinishFlag):
                     self.InfoMessageBox("数据增强完成")
 
