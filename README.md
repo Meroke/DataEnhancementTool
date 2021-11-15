@@ -16,10 +16,11 @@
 
 3.选择确定生成，即可在保存文件路径中看到新生成的图片
 
-<center>
+<center align="center">
     <img src="https://i.loli.net/2021/11/15/aXzmnDrlefG2T1c.png" >
     <center>初始页面</center>
 </center>
+
 
 接下来，按每个算子及配置页面进行讲解。
 
@@ -133,6 +134,5 @@
     <img src="https://i.loli.net/2021/11/15/x3SQjuR6mfoOlZM.png">
     <center>亮 示例</center>
 </center>
-
 
 
