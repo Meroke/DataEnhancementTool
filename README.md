@@ -39,10 +39,11 @@
 2. `最大值` 表示图片旋转角度的终点，360°表示旋转一周到原点
 3. `旋转步长` 表示每隔 一个步长，生成旋转对应角度的图片。如果步长为60°，旋转范围为180°，则 会生成旋转 60° 120° 180°的三张照片。
 
-<center>
+<center align="center">
     <img src="https://i.loli.net/2021/11/15/IyAlEk85GxX3Si6.png">
     <center>旋转示例</center>
 </center>
+
 
 
 
